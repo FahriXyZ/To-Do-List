@@ -306,26 +306,62 @@
             opacity: 0.8;
         }
 
-        .auth-divider {
-            text-align: center;
-            margin: 30px 0;
-            position: relative;
-            color: #a0aec0;
+        /* Auth Tabs Styling */
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 6px;
+            gap: 6px;
         }
 
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
+        .auth-tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            color: #64748b;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0;
+            font-family: inherit;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-tab:hover:not(.active) {
             background: #e2e8f0;
+            color: #475569;
         }
 
-        .auth-divider span {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 0 20px;
+        /* Auth Forms */
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeInSlide 0.4s ease-out;
+        }
+
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes slideIn {
@@ -402,27 +438,35 @@
         <h2>✨ To-Do App</h2>
 
         <div id="auth-section">
-            <h3>Create Account</h3>
-            <div class="form-group">
-                <input type="text" id="reg-username" placeholder="Choose a username">
-            </div>
-            <div class="form-group">
-                <input type="password" id="reg-password" placeholder="Create a password">
-            </div>
-            <button onclick="register()">Create Account</button>
-
-            <div class="auth-divider">
-                <span>or</span>
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Create Account</button>
             </div>
 
-            <h3>Sign In</h3>
-            <div class="form-group">
-                <input type="text" id="login-username" placeholder="Enter your username">
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <h3>Welcome Back!</h3>
+                <div class="form-group">
+                    <input type="text" id="login-username" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+                <button onclick="login()">Sign In</button>
             </div>
-            <div class="form-group">
-                <input type="password" id="login-password" placeholder="Enter your password">
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form">
+                <h3>Join Us Today!</h3>
+                <div class="form-group">
+                    <input type="text" id="reg-username" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-password" placeholder="Create a password">
+                </div>
+                <button onclick="register()">Create Account</button>
             </div>
-            <button onclick="login()">Sign In</button>
         </div>
 
         <div id="app-section" class="hidden">
@@ -447,6 +491,24 @@
     </div>
 
     <script>
+        // Auth tab switching function
+        function switchAuthTab(tab) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.auth-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update forms
+            const forms = document.querySelectorAll('.auth-form');
+            forms.forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.getElementById('register-form').classList.add('active');
+            }
+        }
+
         let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         function handleEnterKey(event) {
@@ -556,6 +618,10 @@
                 document.getElementById('reg-password').value = '';
                 document.getElementById('login-username').value = '';
                 document.getElementById('login-password').value = '';
+
+                // Reset to login tab
+                switchAuthTab('login');
+                document.querySelector('.auth-tab').click();
             } catch (error) {
                 console.error('Logout error:', error);
             }
